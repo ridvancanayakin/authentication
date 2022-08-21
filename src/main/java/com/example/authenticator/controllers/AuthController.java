@@ -10,6 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -78,7 +79,7 @@ public class AuthController {
 			role = UserRole.ADMIN;
 		}
 		user.setRole(role);
-		user.setEnabled(true);
+		user.setEnabled(false);
 		user.setLocked(false);
 		userService.createUser(user);
 		String token = UUID.randomUUID().toString();
@@ -91,12 +92,23 @@ public class AuthController {
 		confirmationTokenService.saveConfirmationToken(confirmationToken);
 		
 		//emailSenderService.sendEmail("canayakin93@gmail.com", "null");
-		return new ResponseEntity<>("User created. Verification email sent to " + user.getEmail(),HttpStatus.CREATED);
+		return new ResponseEntity<>("User created. Verification email sent to " + user.getEmail()+ "token: "+ token,HttpStatus.CREATED);
 	}
 	
-	/*
+	@Transactional
 	@GetMapping("/confirm")
 	public String confirm(@RequestParam("token") String token) {
-		return registra
-	}*/
+		ConfirmationToken confirmationToken = confirmationTokenService.getToken(token).orElseThrow(
+				()-> new IllegalStateException("Token not found"));
+		if(confirmationToken.getConfirmedAt() != null) {
+			throw new IllegalStateException("Email already confirmed");
+		}
+		LocalDateTime expiredAt = confirmationToken.getExpiresAt();
+		if(expiredAt.isBefore(LocalDateTime.now())) {
+			throw new IllegalStateException("Token expired");
+		}
+		confirmationTokenService.setConfirmedAt(token);
+		userService.enableAppUser(confirmationToken.getUser().getEmail());
+		return "confirmed";
+	}
 }

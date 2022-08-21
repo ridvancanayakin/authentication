@@ -1,6 +1,10 @@
 package com.example.authenticator.services;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.authenticator.entities.ConfirmationToken;
 import com.example.authenticator.repositories.ConfirmationTokenRepository;
@@ -15,5 +19,14 @@ public class ConfirmationTokenService {
 	public void saveConfirmationToken(ConfirmationToken token) {
 		confirmationTokenRepository.save(token);
 	}
+	
+	public Optional<ConfirmationToken> getToken(String token){
+		return confirmationTokenRepository.findByToken(token);
+	}
+	@Transactional
+	public int setConfirmedAt(String token) {
+        return confirmationTokenRepository.updateConfirmedAt(
+                token, LocalDateTime.now());
+    }
 	
 }

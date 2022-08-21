@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.authenticator.entities.User;
 import com.example.authenticator.repositories.UserRepository;
@@ -53,5 +54,9 @@ public class UserService {
 		userRepository.save(user);
 		
 	}
+	@Transactional
+	public int enableAppUser(String email) {
+        return userRepository.enableUser(email);
+    }
 	
 }
