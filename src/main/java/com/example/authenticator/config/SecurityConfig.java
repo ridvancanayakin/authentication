@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -20,6 +22,7 @@ import org.springframework.web.filter.CorsFilter;
 import com.example.authenticator.security.JwtAuthenticationEntryPoint;
 import com.example.authenticator.security.JwtAuthenticationFilter;
 import com.example.authenticator.services.UserDetailsServiceImpl;
+
 
 
 @Configuration
@@ -37,6 +40,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	public JwtAuthenticationFilter jwtAuthenticationFilter() {
 		return new JwtAuthenticationFilter();
 	}
+	
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
 
 
 	@Bean(BeanIds.AUTHENTICATION_MANAGER)
@@ -80,7 +88,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     		.and()
     		.csrf().disable()
     		.exceptionHandling().authenticationEntryPoint(handler).and()
-    		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+    		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).maximumSessions(1)
+    		.sessionRegistry(sessionRegistry()).and().sessionFixation().none()
+    		.and()
     		.authorizeRequests()
     		.antMatchers("/auth/**")
     		.permitAll()

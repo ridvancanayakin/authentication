@@ -1,18 +1,27 @@
 package com.example.authenticator.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.authenticator.entities.User;
 import com.example.authenticator.repositories.UserRepository;
+import com.example.authenticator.security.UserDetailsImpl;
 
 
 @Service
 public class UserService {
 	UserRepository userRepository;
+	
+    @Autowired
+    private SessionRegistry sessionRegistry;
 
 	public UserService(UserRepository userRepository) {
 		this.userRepository = userRepository;
@@ -58,5 +67,14 @@ public class UserService {
 	public int enableAppUser(String email) {
         return userRepository.enableUser(email);
     }
+
+	public List<UserDetailsImpl> getActiveUsers() {
+	    return sessionRegistry.getAllPrincipals()
+	            .stream()
+	            .filter(principal -> principal instanceof UserDetailsImpl)
+	            .map(UserDetailsImpl.class::cast)
+	            .collect(Collectors.toList());
+	}
+	
 	
 }
