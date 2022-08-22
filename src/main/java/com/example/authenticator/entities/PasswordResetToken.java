@@ -15,11 +15,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
+
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
-public class ConfirmationToken {
+public class PasswordResetToken {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -37,13 +38,14 @@ public class ConfirmationToken {
 			name = "user_id"
 			)
 	private User user;
-	
-	public ConfirmationToken(String token, LocalDateTime createdAt, LocalDateTime expiresAt,
-			 User user) {
+
+	public PasswordResetToken(String token, LocalDateTime createdAt, LocalDateTime expiresAt, User user) {
 		super();
 		this.token = token;
 		this.createdAt = createdAt;
 		this.expiresAt = expiresAt;
 		this.user = user;
 	}
+	
+	
 }
