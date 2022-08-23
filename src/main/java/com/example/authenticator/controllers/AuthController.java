@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import com.example.authenticator.entities.PasswordResetRequest;
 import com.example.authenticator.entities.SignInRequest;
 import com.example.authenticator.entities.SignUpRequest;
 import com.example.authenticator.services.AuthService;
@@ -47,7 +47,12 @@ public class AuthController {
 	@Transactional
 	@GetMapping("/forgot")
 	public ResponseEntity<String>  forgotPassword(@RequestParam("email") String  email) {
-		System.out.println("50");
 		return authService.forgotPassword(email);
+	}
+	
+	@Transactional
+	@PostMapping("/reset")
+	public String  resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) {
+		return authService.resetPassword(passwordResetRequest);
 	}
 }

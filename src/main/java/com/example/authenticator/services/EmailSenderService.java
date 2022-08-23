@@ -17,7 +17,7 @@ public class EmailSenderService {
 
 	
 	@Async
-	public void sendEmail(String toEmail, String body) {
+	public void sendEmail(String toEmail, String body, String subject) {
 
 		try {
 			MimeMessage message = javaMailSender.createMimeMessage();
@@ -25,9 +25,8 @@ public class EmailSenderService {
 			helper.setText(body,true);
 			helper.setFrom("spring.auth.demo@gmail.com");
 			helper.setTo(toEmail);
-			message.setSubject("Confirm your email.");
+			message.setSubject(subject);
 			javaMailSender.send(message);
-			System.out.println("mail sent");
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

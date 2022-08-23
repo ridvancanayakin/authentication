@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.authenticator.entities.ConfirmationToken;
+import com.example.authenticator.entities.PasswordResetRequest;
 import com.example.authenticator.entities.PasswordResetToken;
 import com.example.authenticator.entities.SignInRequest;
 import com.example.authenticator.entities.SignUpRequest;
@@ -91,7 +92,7 @@ public class AuthService {
 		String link = "http://localhost:8080/auth/confirm?token="+token;
 		String mailBody= buildEmail(user.getName(), link);
 		
-		emailSenderService.sendEmail(user.getEmail(), mailBody);
+		emailSenderService.sendEmail(user.getEmail(), mailBody, "Confirm you email");
 		return new ResponseEntity<>("User created. Verification email sent to " + user.getEmail()+ "token: "+ token,HttpStatus.CREATED);
 	}
 	
@@ -125,14 +126,38 @@ public class AuthService {
 				user);
 		System.out.println(passwordResetToken.getToken()+"   "+passwordResetToken.getCreatedAt()+"  "+passwordResetToken.getExpiresAt()+"   "+passwordResetToken.getUser());
 		passwordResetTokenService.savePasswordResetToken(passwordResetToken);
-		System.out.println("127");
-		String link = "http://localhost:8080/auth/confirm?token="+token;
-		String mailBody= buildEmail(user.getName(), link);
+		String link = "http://localhost:3000/resetPassword/"+token;
+		String mailBody= buildPasswordResetEmail(user.getName(), link);
 		
-		emailSenderService.sendEmail(user.getEmail(), mailBody);
-		return new ResponseEntity<>("Password reset token sent to: " + user.getEmail()+ "token: "+ token+""
-				+ "Reset your password at http://localhost:3000/forgotPassword page using this token",HttpStatus.CREATED);}
+		emailSenderService.sendEmail(user.getEmail(), mailBody, "Reset Your Password.");
+		return new ResponseEntity<>("Password reset link sent to: " + user.getEmail()
+				+ ". Reset your password using this link",HttpStatus.CREATED);
+		}
 	
+	
+
+	public String resetPassword(PasswordResetRequest passwordResetRequest) {
+		
+		PasswordResetToken passwordResetToken = passwordResetTokenService.getToken(passwordResetRequest.getToken())
+				.orElseThrow(()->new IllegalStateException("Token not found"));
+		if( passwordResetToken.getConfirmedAt() != null) {
+			throw new IllegalStateException("This token already used.");
+		}
+		LocalDateTime expiredAt = passwordResetToken.getExpiresAt();
+		if(expiredAt.isBefore(LocalDateTime.now())) {
+			throw new IllegalStateException("Token expired");
+		}
+		//
+		User user = passwordResetToken.getUser();
+		if( user != null ) {
+			user.setPassword(passwordEncoder.encode(passwordResetRequest.getPassword()));
+		} else {
+			throw new IllegalStateException("User couldnt be found.");
+		}
+		userService.updateUser(user.getId(), user);
+		passwordResetTokenService.setConfirmedAt(passwordResetRequest.getToken());
+		return "Password Changed";
+	}
 	
 	
 	
@@ -205,7 +230,7 @@ public class AuthService {
 	                "</div></div>";
 	    }
 	 
-	 private String buildPasswordResetEmail(String name, String token) {
+	 private String buildPasswordResetEmail(String name, String link) {
 	        return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
 	                "\n" +
 	                "<span style=\"display:none;font-size:1px;color:#fff;max-height:0\"></span>\n" +
@@ -261,7 +286,7 @@ public class AuthService {
 	                "      <td width=\"10\" valign=\"middle\"><br></td>\n" +
 	                "      <td style=\"font-family:Helvetica,Arial,sans-serif;font-size:19px;line-height:1.315789474;max-width:560px\">\n" +
 	                "        \n" +
-	                "            <p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\">Hi " + name + ",</p><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> Thank you for registering. Please click on the below link to activate your account: </p><blockquote style=\"Margin:0 0 20px 0;border-left:10px solid #b1b4b6;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\"><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> <a href=\"http://localhost:3000/forgotPassword\">Activate Now</a> </p></blockquote>\n Link will expire in 1 day. <p>See you soon</p>" +
+	                "            <p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\">Hi " + name + ",</p><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\">Forgot your password?. Please click on the below link to reset your password: </p><blockquote style=\"Margin:0 0 20px 0;border-left:10px solid #b1b4b6;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\"><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> <a href=\"" + link + "\">Reset Password</a> </p></blockquote>\n Link will expire in 1 day. <p>See you soon</p>" +
 	                "        \n" +
 	                "      </td>\n" +
 	                "      <td width=\"10\" valign=\"middle\"><br></td>\n" +
@@ -273,6 +298,7 @@ public class AuthService {
 	                "\n" +
 	                "</div></div>";
 	    }
+
 
 
 
