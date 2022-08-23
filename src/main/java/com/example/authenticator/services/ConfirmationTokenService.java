@@ -1,6 +1,7 @@
 package com.example.authenticator.services;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -28,5 +29,8 @@ public class ConfirmationTokenService {
         return confirmationTokenRepository.updateConfirmedAt(
                 token, LocalDateTime.now());
     }
+	public List<ConfirmationToken> getAllToken(){
+		return confirmationTokenRepository.findAll();
+	}
 	
 }

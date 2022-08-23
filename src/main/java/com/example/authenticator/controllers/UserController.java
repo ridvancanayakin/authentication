@@ -1,5 +1,6 @@
 package com.example.authenticator.controllers;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.authenticator.entities.User;
@@ -66,5 +68,21 @@ public class UserController {
 	    }
 	    List<UserDetailsImpl> list = new ArrayList<>(map.values());
 		return list;
+	}
+	
+	@GetMapping("/registeredWithin/{hour}")
+	public List<User> getUsersRegisteredWithin(@PathVariable String hour){
+		return userService.getUsersRegisteredWithin(Long.parseLong(hour));
+	}
+	
+	
+	@GetMapping("/unregistered")
+	public List<User> getUnregisteredUsers(){
+		return userService.getUnregisteredUsers();
+	}
+	
+	@GetMapping("/avarageTime")
+	public double avarageTime(@RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("day") String day){
+		return userService.getAvarageTime(year, month, day);
 	}
 }
