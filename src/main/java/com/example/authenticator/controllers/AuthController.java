@@ -44,7 +44,6 @@ public class AuthController {
 		return authService.confirm(token);
 	}
 	
-	@Transactional
 	@GetMapping("/forgot")
 	public ResponseEntity<String>  forgotPassword(@RequestParam("email") String  email) {
 		return authService.forgotPassword(email);

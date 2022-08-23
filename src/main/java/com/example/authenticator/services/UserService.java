@@ -111,7 +111,6 @@ public class UserService {
 		List<Long> result = new ArrayList<>();
 		for( ConfirmationToken token:confirmationTokens ) {
 			if(token.getCreatedAt().toLocalDate().equals(date) && token.getConfirmedAt()!= null) {
-				System.out.println(token.getUser().getId());
 				Long duration = Duration.between(token.getCreatedAt(), token.getConfirmedAt()).toSeconds();
 				result.add(duration);
 			}

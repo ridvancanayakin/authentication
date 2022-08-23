@@ -113,7 +113,6 @@ public class AuthService {
 	}
 	
 	public ResponseEntity<String> forgotPassword(String email) {
-		System.out.println(email);
 		User user = userService.getUserByEmail(email);
 		if( user == null ) {
 			throw new UsernameNotFoundException("User not found.");
@@ -124,7 +123,6 @@ public class AuthService {
 				LocalDateTime.now(),
 				LocalDateTime.now().plusDays(1),
 				user);
-		System.out.println(passwordResetToken.getToken()+"   "+passwordResetToken.getCreatedAt()+"  "+passwordResetToken.getExpiresAt()+"   "+passwordResetToken.getUser());
 		passwordResetTokenService.savePasswordResetToken(passwordResetToken);
 		String link = "http://localhost:3000/resetPassword/"+token;
 		String mailBody= buildPasswordResetEmail(user.getName(), link);
