@@ -103,21 +103,14 @@ public class UserService {
 
 	public double getAvarageTime(String year, String month, String day) {
 		LocalDate date = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month),  Integer.parseInt(day));
-		List<ConfirmationToken> confirmationTokens= confirmationTokenService.getAllToken();
+		List<ConfirmationToken> confirmationTokens = confirmationTokenService.getConfirmedTokensAtSpecificDate(date);
 		List<Long> result = new ArrayList<>();
-		for( ConfirmationToken token:confirmationTokens ) {
-			if(token.getCreatedAt().toLocalDate().equals(date) && token.getConfirmedAt()!= null) {
-				Long duration = Duration.between(token.getCreatedAt(), token.getConfirmedAt()).toSeconds();
-				result.add(duration);
-			}
-		}
-
-		if( result.size() != 0  ) {
+		if( confirmationTokens.size() != 0 ) {
 			Long sum = 0L;
 			Long num = 0L;
-			for( int i =0; i<result.size(); i++ ) {
-				sum = sum+result.get(i);
-				num = num+1;
+			for( ConfirmationToken token:confirmationTokens ) {
+					sum =sum+ Duration.between(token.getCreatedAt(), token.getConfirmedAt()).toSeconds();
+					num = num+1;
 			}
 			return sum/num;
 		}

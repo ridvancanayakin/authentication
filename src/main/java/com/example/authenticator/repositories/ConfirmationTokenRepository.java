@@ -26,4 +26,8 @@ public interface ConfirmationTokenRepository extends JpaRepository<ConfirmationT
 
     @Query("SELECT c FROM ConfirmationToken c WHERE c.confirmedAt >  ?1")
 	List<ConfirmationToken> getTokensConfirmedAfter(LocalDateTime localDateTime);
+    
+    
+    @Query("SELECT c FROM ConfirmationToken c WHERE c.createdAt > ?1 and c.createdAt < ?2 and c.confirmedAt is not null ")
+    List<ConfirmationToken> getConfirmedTokensAtSpecificDate(LocalDateTime start, LocalDateTime end);
 }

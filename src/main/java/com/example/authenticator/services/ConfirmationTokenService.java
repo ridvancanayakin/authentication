@@ -1,5 +1,6 @@
 package com.example.authenticator.services;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +41,10 @@ public class ConfirmationTokenService {
 
 	public List<ConfirmationToken> getTokensConfirmedAfter(LocalDateTime localDateTime) {
 		return confirmationTokenRepository.getTokensConfirmedAfter(localDateTime);
+	}
+	
+	public List<ConfirmationToken> getConfirmedTokensAtSpecificDate (LocalDate localDate){
+		return confirmationTokenRepository.getConfirmedTokensAtSpecificDate(localDate.atStartOfDay(), localDate.plusDays(1).atStartOfDay());
 	}
 	
 }
