@@ -95,12 +95,10 @@ public class UserService {
 	}
 
 	public List<User> getUnregisteredUsers() {
-		List<ConfirmationToken> confirmationTokens= confirmationTokenService.getAllToken();
+		List<ConfirmationToken> confirmationTokens= confirmationTokenService.getExpiredTokens();
 		List<User> result = new ArrayList<>();
 		for( ConfirmationToken token:confirmationTokens ) {
-			if(token.getConfirmedAt() == null && token.getExpiresAt().isBefore(LocalDateTime.now())) {
 				result.add(token.getUser());
-			}
 		}		
 		return result;
 	}

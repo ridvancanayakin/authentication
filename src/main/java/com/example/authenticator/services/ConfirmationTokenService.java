@@ -33,4 +33,9 @@ public class ConfirmationTokenService {
 		return confirmationTokenRepository.findAll();
 	}
 	
+	public List<ConfirmationToken> getExpiredTokens(){
+		return confirmationTokenRepository.getExpiredTokens(LocalDateTime.now());
+		
+	}
+	
 }
