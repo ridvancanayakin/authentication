@@ -83,13 +83,11 @@ public class UserService {
 	}
 
 	public List<User> getUsersRegisteredWithin(Long hour) {
-		List<ConfirmationToken> confirmationTokens= confirmationTokenService.getAllToken();
+		
+		List<ConfirmationToken> confirmationTokens= confirmationTokenService.getTokensConfirmedAfter(LocalDateTime.now().minusHours(hour));
 		List<User> result = new ArrayList<>();
 		for( ConfirmationToken token:confirmationTokens ) {
-			LocalDateTime dateTime = token.getConfirmedAt();
-			if(dateTime != null && hour >= Duration.between(dateTime, LocalDateTime.now()).toHours() ) {
 				result.add(token.getUser());
-			}
 		}		
 		return result;
 	}
